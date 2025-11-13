@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Analytics System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Student Performance Analytics System</h1>
+        <div class="card" style="text-align:center; padding:20px; margin-bottom:25px;">
+    <a href="/dashboard" class="btn-dashboard">📊 Open Dashboard</a>
+</div>
+
+        <p class="subtitle">Python Flask + PostgreSQL REST API</p>
+        
+        <div class="card">
+            <h2>📚 API Endpoints</h2>
+            
+            <div class="endpoint-section">
+                <h3>👨‍🎓 Student Management</h3>
+                <ul>
+                    <li><span class="method get">GET</span> <code>/api/students</code> - Get all students</li>
+                    <li><span class="method post">POST</span> <code>/api/students</code> - Create new student</li>
+                    <li><span class="method get">GET</span> <code>/api/students/:id</code> - Get student by ID</li>
+                    <li><span class="method delete">DELETE</span> <code>/api/students/:id</code> - Delete student</li>
+                </ul>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📖 Course Management</h3>
+                <ul>
+                    <li><span class="method get">GET</span> <code>/api/courses</code> - Get all courses</li>
+                    <li><span class="method post">POST</span> <code>/api/courses</code> - Create new course</li>
+                </ul>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📊 Grade Management</h3>
+                <ul>
+                    <li><span class="method post">POST</span> <code>/api/grades</code> - Add grade</li>
+                    <li><span class="method get">GET</span> <code>/api/grades/student/:id</code> - Get student grades</li>
+                </ul>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📈 Analytics</h3>
+                <ul>
+                    <li><span class="method get">GET</span> <code>/api/analytics/student/:id</code> - Student analytics</li>
+                    <li><span class="method get">GET</span> <code>/api/analytics/course/:id</code> - Course analytics</li>
+                    <li><span class="method get">GET</span> <code>/api/analytics/overall</code> - Overall statistics</li>
+                </ul>
+            </div>
+            
+            <div class="endpoint-section">
+                <h3>📄 Reports</h3>
+                <ul>
+                    <li><span class="method get">GET</span> <code>/api/reports/student/:id</code> - Generate PDF report</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🛠️ Tech Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <strong>Backend:</strong> Python Flask
+                </div>
+                <div class="tech-item">
+                    <strong>Database:</strong> PostgreSQL
+                </div>
+                <div class="tech-item">
+                    <strong>ORM:</strong> SQLAlchemy
+                </div>
+                <div class="tech-item">
+                    <strong>PDF:</strong> ReportLab
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>✨ Features</h2>
+            <ul class="features">
+                <li>✅ Complete CRUD operations for students and courses</li>
+                <li>✅ Automated grade calculation and letter grade assignment</li>
+                <li>✅ Real-time analytics (student-wise & course-wise)</li>
+                <li>✅ PDF report generation with performance summary</li>
+                <li>✅ RESTful API architecture</li>
+                <li>✅ PostgreSQL with proper relationships and constraints</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Built by <strong>Kajal Kumari</strong> | NSUT Delhi</p>
+            <p>Test APIs using Postman or Thunder Client</p>
+        </div>
+    </div>
+</body>
+</html>
