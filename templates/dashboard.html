@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -177,4 +177,190 @@ loadGrades();
 };
 </script>
 </body>
+</html> -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Student Analytics Dashboard</title>
+<style>
+body{font-family:Arial;background:linear-gradient(135deg,#667eea,#764ba2);padding:20px;min-height:100vh;margin:0}
+.container{max-width:1400px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+h1{color:white;font-size:2.5em;margin:0}
+.home-btn{background:white;color:#667eea;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;box-shadow:0 4px 15px rgba(0,0,0,0.2)}
+.home-btn:hover{background:#f0f0f0}
+.subtitle{text-align:center;color:rgba(255,255,255,0.9);margin-bottom:30px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:30px}
+.stat-card{background:white;border-radius:12px;padding:25px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+.stat-number{font-size:3em;color:#667eea;font-weight:700}
+.stat-label{font-size:1.1em;color:#666}
+.card{background:white;border-radius:12px;padding:30px;margin-bottom:25px;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+h2{color:#667eea;margin-bottom:20px;border-bottom:3px solid #667eea;padding-bottom:10px}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+thead{background:linear-gradient(135deg,#667eea,#764ba2);color:white}
+th,td{padding:15px;text-align:left;border-bottom:1px solid #ddd}
+tbody tr:hover{background:#f5f5f5}
+.btn{background:#667eea;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer;margin-right:5px}
+.btn:hover{background:#5249b7}
+.btn-success{background:#28a745}
+.btn-success:hover{background:#218838}
+.loading{text-align:center;padding:40px;color:#666}
+.grade-badge{padding:5px 12px;border-radius:20px;font-weight:600}
+.grade-a-plus{background:#28a745;color:white}
+.grade-a{background:#17a2b8;color:white}
+.grade-b-plus{background:#ffc107;color:#333}
+.grade-b{background:#fd7e14;color:white}
+.grade-c{background:#6c757d;color:white}
+.grade-f{background:#dc3545;color:white}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>🎓 Student Performance Analytics Dashboard</h1>
+<a href="/" class="home-btn">🏠 Home</a>
+</div>
+<p class="subtitle">Real-time Data from PostgreSQL Database</p>
+
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-number" id="totalStudents">-</div><div class="stat-label">Total Students</div></div>
+<div class="stat-card"><div class="stat-number" id="totalCourses">-</div><div class="stat-label">Total Courses</div></div>
+<div class="stat-card"><div class="stat-number" id="totalGrades">-</div><div class="stat-label">Total Grades</div></div>
+<div class="stat-card"><div class="stat-number" id="overallAverage">-</div><div class="stat-label">Overall Average</div></div>
+</div>
+
+<div class="card">
+<h2>📚 All Students</h2>
+<div id="studentsLoading" class="loading">Loading students...</div>
+<table id="studentsTable" style="display:none">
+<thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Enrollment No</th><th>Branch</th><th>Semester</th><th>Actions</th></tr></thead>
+<tbody id="studentsBody"></tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>📖 All Courses</h2>
+<div id="coursesLoading" class="loading">Loading courses...</div>
+<table id="coursesTable" style="display:none">
+<thead><tr><th>ID</th><th>Code</th><th>Name</th><th>Credits</th><th>Semester</th><th>Actions</th></tr></thead>
+<tbody id="coursesBody"></tbody>
+</table>
+</div>
+
+<div class="card">
+<h2>📊 Recent Grades</h2>
+<div id="gradesLoading" class="loading">Loading grades...</div>
+<div id="gradesContainer"></div>
+</div>
+</div>
+<script>
+const API='http://localhost:5000/api';
+
+async function loadAnalytics(){
+try{
+const r=await fetch(API+'/analytics/overall');
+const d=await r.json();
+if(d.success){
+document.getElementById('totalStudents').textContent=d.data.total_students;
+document.getElementById('totalCourses').textContent=d.data.total_courses;
+document.getElementById('totalGrades').textContent=d.data.total_grades;
+document.getElementById('overallAverage').textContent=d.data.overall_average.toFixed(1);
+}
+}catch(e){console.error(e)}
+}
+
+async function loadStudents(){
+try{
+const r=await fetch(API+'/students');
+const d=await r.json();
+if(d.success){
+const tbody=document.getElementById('studentsBody');
+tbody.innerHTML='';
+d.data.forEach(s=>{
+tbody.innerHTML+=`<tr><td>${s.id}</td><td><strong>${s.name}</strong></td><td>${s.email}</td><td>${s.enrollment_no}</td><td>${s.branch}</td><td>${s.semester}</td><td><button class="btn" onclick="viewAnalytics(${s.id})">Analytics</button><button class="btn btn-success" onclick="generatePDF(${s.id})">PDF</button></td></tr>`;
+});
+document.getElementById('studentsLoading').style.display='none';
+document.getElementById('studentsTable').style.display='table';
+}
+}catch(e){console.error(e)}
+}
+
+async function loadCourses(){
+try{
+const r=await fetch(API+'/courses');
+const d=await r.json();
+if(d.success){
+const tbody=document.getElementById('coursesBody');
+tbody.innerHTML='';
+d.data.forEach(c=>{
+tbody.innerHTML+=`<tr><td>${c.id}</td><td><strong>${c.code}</strong></td><td>${c.name}</td><td>${c.credits}</td><td>${c.semester}</td><td><button class="btn" onclick="viewCourseAnalytics(${c.id})">Analytics</button></td></tr>`;
+});
+document.getElementById('coursesLoading').style.display='none';
+document.getElementById('coursesTable').style.display='table';
+}
+}catch(e){console.error(e)}
+}
+
+async function loadGrades(){
+try{
+const r=await fetch(API+'/students');
+const d=await r.json();
+if(d.success){
+const cont=document.getElementById('gradesContainer');
+cont.innerHTML='';
+for(const s of d.data.slice(0,3)){
+const gr=await fetch(API+'/grades/student/'+s.id);
+const gd=await gr.json();
+if(gd.success&&gd.data.length>0){
+let html=`<h3 style="color:#667eea;margin-top:20px">${s.name} (${s.enrollment_no})</h3><table><thead><tr><th>Course Code</th><th>Course Name</th><th>Marks</th><th>Grade</th><th>Semester</th></tr></thead><tbody>`;
+gd.data.forEach(g=>{
+const gc=g.grade.replace('+','-plus').toLowerCase();
+html+=`<tr><td><strong>${g.course_code}</strong></td><td>${g.course_name}</td><td>${g.marks}</td><td><span class="grade-badge grade-${gc}">${g.grade}</span></td><td>${g.semester}</td></tr>`;
+});
+html+='</tbody></table>';
+cont.innerHTML+=html;
+}
+}
+document.getElementById('gradesLoading').style.display='none';
+}
+}catch(e){console.error(e)}
+}
+
+async function viewAnalytics(id){
+try{
+const r=await fetch(API+'/analytics/student/'+id);
+const d=await r.json();
+if(d.success){
+const i=d.data;
+alert(`Student Analytics:\n\nName: ${i.student.name}\nAverage: ${i.average_marks}\nCourses: ${i.total_courses}\nGrades: ${JSON.stringify(i.grade_distribution)}`);
+}
+}catch(e){alert('Error loading analytics')}
+}
+
+async function viewCourseAnalytics(id){
+try{
+const r=await fetch(API+'/analytics/course/'+id);
+const d=await r.json();
+if(d.success){
+const i=d.data;
+alert(`Course Analytics:\n\nCourse: ${i.course.name}\nCode: ${i.course.code}\nAverage: ${i.average_marks}\nStudents: ${i.total_students}\nHighest: ${i.highest_marks}\nLowest: ${i.lowest_marks}`);
+}
+}catch(e){alert('Error loading course analytics')}
+}
+
+function generatePDF(id){
+window.open(API+'/reports/student/'+id,'_blank');
+}
+
+window.onload=()=>{
+loadAnalytics();
+loadStudents();
+loadCourses();
+loadGrades();
+};
+</script>
+</body>
 </html>
+
+

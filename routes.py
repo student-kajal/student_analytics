@@ -329,7 +329,9 @@
 from flask import Blueprint, request, jsonify, render_template
 from models import db, Student, Course, Grade
 from sqlalchemy import func
-from utils.pdf_generator import generate_student_report
+# from utils.pdf_generator import generate_student_report
+from utils.pdf_generator import generate_student_report_buffer
+from flask import Blueprint, request, jsonify, render_template, send_file
 
 api = Blueprint('api', __name__)
 
@@ -622,6 +624,28 @@ def get_course_analytics(course_id):
 # -----------------------------------------
 # PDF Report Route
 # -----------------------------------------
+# @api.route('/api/reports/student/<int:student_id>', methods=['GET'])
+# def generate_report(student_id):
+#     try:
+#         student = Student.query.get(student_id)
+#         if not student:
+#             return jsonify({'success': False, 'error': 'Student not found'}), 404
+
+#         grades = Grade.query.filter_by(student_id=student_id).all()
+#         if not grades:
+#             return jsonify({'success': False, 'error': 'No grades found'}), 404
+
+#         pdf_path = generate_student_report(student, grades)
+
+#         return jsonify({
+#             'success': True,
+#             'message': 'Report generated successfully',
+#             'pdf_path': pdf_path
+#         }), 200
+
+#     except Exception as e:
+#         return jsonify({'success': False, 'error': str(e)}), 500
+
 @api.route('/api/reports/student/<int:student_id>', methods=['GET'])
 def generate_report(student_id):
     try:
@@ -633,18 +657,17 @@ def generate_report(student_id):
         if not grades:
             return jsonify({'success': False, 'error': 'No grades found'}), 404
 
-        pdf_path = generate_student_report(student, grades)
+        from flask import send_file
+        pdf_buffer = generate_student_report_buffer(student, grades)
 
-        return jsonify({
-            'success': True,
-            'message': 'Report generated successfully',
-            'pdf_path': pdf_path
-        }), 200
-
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f'student_report_{student.enrollment_no}.pdf'
+        )
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
-
-
 # -----------------------------------------
 # Dashboard
 # -----------------------------------------
